@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sound Prompt Generator</title>
+
+  <style>
+    :root{
+      --bg: #0a0a0a;
+      --text: #00ff00;
+      --btn: #111111;
+    }
+
+    body{
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Courier New", Courier, monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px;
+      gap: 16px;
+    }
+
+    h1{
+      margin: 0;
+      font-size: 22px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    #subtitle{
+      margin: 0;
+      font-size: 14px;
+      max-width: 560px;
+      text-align: center;
+      line-height: 1.4;
+      opacity: 0.9;
+    }
+
+    button{
+      background: var(--btn);
+      color: var(--text);
+      border: 1px solid var(--text);
+      padding: 12px 16px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    pre{
+      width: min(560px, 100%);
+      background: #050505;
+      border: 1px solid #1f1f1f;
+      padding: 16px;
+      font-size: 16px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Sound Prompt Generator</h1>
+
+  <p id="subtitle">
+    Automatic algorithmic prompt generation for experimental sounds
+  </p>
+
+  <button id="btn">GENERATE</button>
+  <button id="copy">COPY</button>
+
+  <pre id="out">press the button…</pre>
+
+  <script>
+    /* ===================== DATA ===================== */
+
+    const moods = [
+      "an alien","a liminal","an uncanny","a fragmented","a deconstructed",
+      "an unstable","a decaying","a collapsing","an evolving","a non-linear",
+      "a time-warped","a detached","a subconscious","a dream-logic",
+      "a hallucinatory","a surreal","a dystopian","a post-human",
+      "a machine-like","a bio-mechanical","a void-like","a weightless",
+      "a claustrophobic","a ritualistic","a hyperslow","a hyper-detailed",
+      "an anti-musical","an existential","a glitch-conscious",
+      "a signal-decayed","a memory-corrupted","a identity-fractured",
+      "an algorithmic anxiety","a synthetic loneliness",
+      "a temporal dislocation","a structural collapse","a data-haunted",
+      "a ghost-in-the-machine","a non-human perspective",
+      "a machine dreaming","a neural haze","a post-organic",
+      "an entropy-driven","a system failure","a broken symmetry",
+      "a digital ruin","an information overload","a silence-as-tension",
+      "a static-soaked","a feedback-drenched","a residual noise",
+      "a glitch fatigue","a spectral absence","an eroded","a disembodied",
+      "an unresolved","a paradoxical","an unstable equilibrium",
+      "an anti-structure","a collapsed narrative","a signal lost",
+      "a void resonance","an abstract tension","a detuned reality",
+      "a perceptual drift","a synthetic decay","an uncomfortable stillness"
+    ];
+
+    const instruments = [
+      "an analog synthesizer","a modular synthesizer","an ambient drone",
+      "a prepared piano","a detuned piano","a processed electric guitar",
+      "an eBow guitar","a distorted bass","extended violin techniques",
+      "a granular cello","cinematic strings","an organic percussion",
+      "a metallic percussion","glitch rhythms","a lo-fi drum machine",
+      "a 808 drum machine","white noise textures","urban field recordings",
+      "nature field recordings","ethereal vocals","whispered vocals",
+      "a processed choir","chopped vocal samples","a degraded tape",
+      "a radio static","electronic feedback","a found object percussion",
+      "industrial sounds","atmospheric pads","generative arpeggios",
+      "a sub bass","water-based sounds","processed bells",
+      "a FM synthesizer","granular textures","mechanical sounds",
+      "dark drones","microtonal tones","algorithmic rhythms",
+      "self-generating synth patches","AI-generated vocal textures",
+      "spectral synthesis","resonant noise bursts","time-stretched artifacts",
+      "reverse reverb swells","unstable oscillators","feedback loops",
+      "circuit-bent instruments","broken tape loops","data-moshed audio",
+      "glitch stutter effects","a chaotic modulation",
+      "randomized MIDI patterns","a procedural sound design",
+      "spectral drones","subharmonic oscillations","phase-shifted tones",
+      "polyrhythmic noise layers","asymmetrical rhythms","atonal clusters",
+      "dissonant harmonics","bio-inspired sound textures",
+      "electromagnetic interference sounds","a sonification of data",
+      "low-frequency rumble","high-frequency sine tones",
+      "psychoacoustic effects","unpredictable silence gaps",
+      "machine breathing sounds","abstract percussive clicks",
+      "glitchy vinyl artifacts","time-fractured delays",
+      "spectral freezing effects","a nonlinear distortion"
+    ];
+
+    const movement_verbs = [
+      "evolving","decaying","collapsing","eroding","drifting","pulsing",
+      "breathing","stretching","compressing","looping","unfolding",
+      "dissolving","melting","fading","emerging","disappearing","glitching",
+      "stuttering","fragmenting","breaking apart","reassembling",
+      "destabilizing","warping","detuning","misaligning","flickering",
+      "failing","short-circuiting","overloading","corrupting","degrading",
+      "freezing","restarting","echoing endlessly","looping imperfectly",
+      "collapsing into silence","mutating unpredictably",
+      "breathing irregularly","oscillating chaotically",
+      "slipping out of sync","losing coherence","resisting resolution"
+    ];
+
+    const structures = [
+      "no clear intro or outro","slow build with no climax",
+      "sudden start, abrupt ending","continuous loop with subtle variation",
+      "gradual decay into silence","static composition with micro-changes",
+      "minimal elements, maximal space","single evolving section",
+      "layered textures entering and exiting",
+      "repetitive motif with slight corruption",
+      "long-form drone progression","fragmented sections stitched together",
+      "non-linear structure","unpredictable transitions",
+      "asymmetrical form","irregular pauses and gaps",
+      "broken rhythm framework","anti-climactic form",
+      "collapsed narrative arc","sections that contradict each other",
+      "constant tension, no release","silence used as structure",
+      "rhythm appears and disappears","form defined by failure points",
+      "unfinished structure","false endings","structure driven by decay",
+      "loop that slowly destabilizes","form shaped by randomness",
+      "no repetition, no resolution","self-destructing arrangement",
+      "structure that resists pattern"
+    ];
+
+    const constraints = [
+      "no clear melody","no traditional rhythm",
+      "focus on texture over harmony",
+      "focus on atmosphere over structure",
+      "tempo constantly shifting","avoid predictable patterns",
+      "minimal harmonic movement","limited sound palette",
+      "extreme use of space","long reverb tails","no drums",
+      "drums used only as texture","no bass focus",
+      "subtle low-frequency presence","monophonic layers only",
+      "slow dynamic changes","no clear genre reference",
+      "embrace imperfections","allow system errors",
+      "use silence as an active element",
+      "unresolved harmonic tension","avoid resolution",
+      "asymmetry over balance","non-human timing",
+      "machine-like precision mixed with instability",
+      "randomized parameters","controlled chaos",
+      "elements intentionally out of sync",
+      "degraded audio quality","lo-fi artifacts present",
+      "glitches treated as musical events",
+      "focus on failure states","ignore traditional song form",
+      "sound design over composition",
+      "no emotional guidance for the listener",
+      "anti-musical intent"
+    ];
+
+    /* ===================== HELPERS ===================== */
+
+    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+    const randomLetter = () =>
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[Math.floor(Math.random() * 26)];
+
+    const randomInt = (min, max) =>
+      Math.floor(Math.random() * (max - min + 1)) + min;
+
+    function sample(arr, n) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy.slice(0, n);
+    }
+
+    /* ===================== CORE ===================== */
+
+    function generate_prompt(moods, instruments, movement_verbs, structures, constraints) {
+      const num = Math.floor(Math.random() * 4);
+      const instrumentText =
+        num === 0
+          ? "no defined instruments, focusing purely on texture and sound"
+          : sample(instruments, num).join(", ");
+
+      return `Generate ${pick(moods)} sound using ${instrumentText}, ` +
+             `${pick(movement_verbs)}, structured with ${pick(structures)}, ` +
+             `under the constraint of ${pick(constraints)}.`;
+    }
+
+    let lastPrompt = "";
+    let currentPrompt = "";
+
+    function generarPromptConSeed() {
+      const seed = `${randomLetter()}-${randomInt(1, 99)}`;
+
+      let prompt, safety = 0;
+      do {
+        prompt = generate_prompt(
+          moods, instruments, movement_verbs, structures, constraints
+        );
+        safety++;
+      } while (prompt === lastPrompt && safety < 20);
+
+      lastPrompt = prompt;
+      currentPrompt = prompt;
+
+      return [
+        `🟩 PROMPT ${seed}`,
+        "",
+        prompt
+      ].join("\n");
+    }
+
+    /* ===================== UI ===================== */
+
+    const btn = document.getElementById("btn");
+    const copyBtn = document.getElementById("copy");
+    const out = document.getElementById("out");
+
+    btn.addEventListener("click", () => {
+      out.textContent = generarPromptConSeed();
+    });
+
+    copyBtn.addEventListener("click", () => {
+      if (!currentPrompt) return;
+      navigator.clipboard.writeText(currentPrompt);
+    });
+  </script>
+</body>
+</html>
